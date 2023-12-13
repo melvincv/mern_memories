@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  db:
+    image: mongo:5.0.23-focal
+    restart: unless-stopped
+    volumes:
+      - ./db-data:/data/db
+  api:
+    build: ./server
+    image: mern-memories-api
+    restart: unless-stopped
+    environment:
+      MONGODB_URI: 'mongodb://db:27017/mern-memories'
+    ports:
+      - 5000:5000
+    # volumes:
+    #   - ./api-data:/app
+    depends_on:
+      - db
+  web:
+    build: ./client
+    image: mern-memories-web
+    restart: unless-stopped
+    environment:
+      API_URL: "http://localhost:5000"
+    ports:
+      - 3000:3000
+    depends_on:
+      - api
